@@ -14,8 +14,6 @@ require('dotenv').config({
 const app = express();
 const port = process.env.PORT || 5000;
 
-//Websocket
-const Users = require('./models/user.model');
 
 app.use(cors());
 app.use(express.json());
@@ -30,7 +28,9 @@ const usersRouter = require('./routes/users');
 //
 app.use('/users', usersRouter);
 
-
+//Websocket
+const Users = require('./models/user.model');
+//
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, {
     
@@ -38,8 +38,10 @@ mongoose.connect(uri, {
     useCreateIndex: true,
     useUnifiedTopology: true
 
-}, function(err){
+}, 
+function(err){
     if(err){
+        console.log("server.js err line 44");
         throw err;
     }
 
@@ -53,17 +55,16 @@ mongoose.connect(uri, {
 
     Users.watch().on('change', (change) => {
         console.log('socket says: something changed in db');
-        io.to(change.fullDocument._id).emit('changes',change.fullDocument)
+        console.log('socket change: ', change);
+        // io.to(change.fullDocument._id).emit('changes',change.fullDocument)
     })
-
-});
+}
+);
 
 const connection = mongoose.connection;
 connection.once('open', () => {
     console.log("MongoDB database connection established successfully");
 })
-
-
 
 app.listen(port, () => {
     console.log(`Server ist running on port: ${port}`);
