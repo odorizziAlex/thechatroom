@@ -5,57 +5,29 @@ import { UserContext } from "../../contexts/UserContext";
 import { MsgContext } from "../../contexts/MsgContext";
 
 
-const ConvList = ({loggedInUser, convIds}) => {
+const ConvList = ({user}) => {
 
-    const { convs } = useContext(ConvContext);
-    const { users } = useContext(UserContext);
-    const { msgs } = useContext(MsgContext);
+    const { users, deleteUser } = useContext(UserContext);
 
-    const getConversations = () => {
-        let convsList = [];
-        for(let i=0;i<convIds.length;i++){
-            let previewInformation = {
-                convPartnerName: "",
-                msgPreview: "",
-            }
-            if(convs[i].conversationId === convIds[i]){
-
-                // get conversation Partner Name
-                if(convs[i].ids.id1 !== loggedInUser.userId){
-                    let convPartner = users.find((user) => user.userId === convs[i].ids.id1);
-                    previewInformation.convPartnerName = convPartner.name;
-                    
-                }else{
-                    let convPartner = users.find((user) => user.userId === convs[i].ids.id2);
-                    previewInformation.convPartnerName = convPartner.name;
-
-                }
-                // get last message
-                let msg = msgs.find((msg) => convs[i].messagesId === msg.msgId);
-                previewInformation.msgPreview = msg.messages[msg.messages.length-1].text;
-            }
-            convsList.push(previewInformation);
+    const logging = () => {
+        if(user!==undefined){
+            console.log(user);
+            console.log(users);
         }
-
-        return convsList;
     }
-
-    const [conversationList, setConversationList] = useState(getConversations()); 
-    
-    
-
-    useEffect(()=>{
-        console.log(loggedInUser.userId);
-        console.log(conversationList);
-    },[]);
-
+    logging();
     return(
         <StyledArea>
             <UserList> 
-                {conversationList.map((c) => (
-                <UserItem>
-                    <MessageTitle>{c.convPartnerName}</MessageTitle>
-                    <MessagePreview>{c.msgPreview}</MessagePreview>
+                {/* {user !== undefined && <UserItem key={user._id}>
+                    <MessageTitle>{user.username}</MessageTitle>
+                    <MessagePreview>Preview</MessagePreview>
+                </UserItem>} */}
+
+                {users !== undefined && users.map((u) => (
+                <UserItem key={u._id}>
+                    <MessageTitle>{u.username}</MessageTitle>
+                    <MessagePreview>preview</MessagePreview>
                 </UserItem>
                 ))}
             </UserList>

@@ -6,22 +6,14 @@ import ConvContext from "../../contexts/ConvContext"
 import MsgContext from "../../contexts/MsgContext"
 import { UserContext } from "../../contexts/UserContext";
 
-const Chat = ({userId}) => {
-    const { users } = useContext(UserContext);
-    const user = users.find((user) => user.userId === userId);
-    const [ conversationIds, setConversationIds ] = useState(user.convIds);
-
-    // useEffect(() => {
-    //     console.log("userId:", userId);
-    //     console.log("user:", user);
-    // },[])
+const Chat = ({user}) => {
 
     return(
         <ConvContext>
             <MsgContext>
                 <StyledArea>
                     <LeftArea>
-                        <ConvList loggedInUser={user} convIds={conversationIds}/>
+                        <ConvList user = {user}/>
                     </LeftArea>
                     <RightArea>
                         <Messages/>

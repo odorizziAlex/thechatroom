@@ -15,6 +15,9 @@
 
   --h2-size: 18px;
   --p-size: 15px;
+
+  /* --warning: rgba(255, 60, 0, 0); */
+  --warning: rgba(255, 60, 0, 1);;
 }
 
 body {

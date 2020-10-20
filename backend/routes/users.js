@@ -4,17 +4,33 @@ let User = require('../models/user.model');
 router.route('/').get((req,res) => {
     User.find()
     .then(users => res.json(users))
-    .catch(err => res.status(400).json('Error: '+err));
+    .catch(err => res.status(400).json('Error users.js get all users: '+err));
 });
 
 router.route('/add').post((req,res) => {
+    const customId = req.body.customId;
     const username = req.body.username;
     const convList = [];
-    const newUser = new User({username, convList});
+    const newUser = new User({customId, username, convList});
 
     newUser.save()
     .then(() => res.json('User added!'))
-    .catch(err => res.status(400).json('Error: '+err));
+    .catch(err => res.status(400).json('Error users.js add new user: '+err));
+});
+
+router.route('/:id').get((req,res) => {
+  User.findById(req.params.id)
+  .then(users => {
+    res.json(users)
+    console.log(req.params.id);
+  })
+  .catch(err => res.status(400).json('Error users.js find by id: '+err));
+});
+
+router.route('/:id').delete((req,res) => {
+    User.findByIdAndDelete(req.params.id)
+    .then(() => res.json('User deleted.'))
+    .catch(err=>res.status(400).json('Error users.js delete user: '+err));
 });
 
 module.exports = router;
