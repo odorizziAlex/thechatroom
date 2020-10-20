@@ -6,6 +6,16 @@ import { UserContext } from "../contexts/UserContext";
 import { CookieManager } from "../cookies/CookieManager";
 import { Config } from "../config/Config";
 
+import socketIOClient from "socket.io-client";
+const ENDPOINT = "http://127.0.0.1:5000";
+
+
+/** 
+ * sockets für datenbank update:
+ * socket io server exercise
+ * vielleicht kann man die sockets in der main content
+ * area verankern. Kann ich von hier auf die db zugreifen?
+  */
 
 const MainContentArea = () => {
     const { config } = useContext(Config);
@@ -16,6 +26,13 @@ const MainContentArea = () => {
     const [isShowPopup, setIsShowPopup] = useState(true);
     const [usernameIsTooShort, setUsernameIsTooShort] = useState(false);
     
+    useEffect(()=>{
+        const socket = socketIOClient(ENDPOINT);
+        socket.on("FromAPI", data => {
+            console.log(data);
+        })
+    });
+
     useEffect(() => {
         console.log("mount");
         if(getCookieByKey(config.cookieUserKey) !== undefined){
