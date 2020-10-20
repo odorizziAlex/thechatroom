@@ -6,10 +6,8 @@ import { UserContext } from "../contexts/UserContext";
 
 
 const MainContentArea = () => {
-    const loggedInUserId = 0;
-    const {users, addUserToDB, getUserByName} = useContext(UserContext);
+    const {users, addUserToDB, getUserByName, deleteUser} = useContext(UserContext);
     const [newUserName, setNewUserName] = useState("");
-    const [allUsers, setAllUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(undefined);
     const [isShowPopup, setIsShowPopup] = useState(true);
     const [usernameIsTooShort, setUsernameIsTooShort] = useState(false);
@@ -17,9 +15,10 @@ const MainContentArea = () => {
     useEffect(() => {
         if(!isShowPopup){
             setCurrentUser(getUserByName(newUserName));
-            // console.log(currentUser);
         }
     },[users]);
+
+    window.addEventListener("beforeunload", () => deleteUser(currentUser._id));
 
     const handleUserNameInputChange = (e) => {
         setNewUserName(e.target.value);
