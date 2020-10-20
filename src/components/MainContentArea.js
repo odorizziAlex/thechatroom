@@ -3,22 +3,40 @@ import styled from "styled-components";
 import Chat from "./Chat/Chat";
 import { v4 as uuidv4 } from 'uuid';
 import { UserContext } from "../contexts/UserContext";
+import { CookieManager } from "../cookies/CookieManager";
+import { Config } from "../config/Config";
 
 
 const MainContentArea = () => {
+    const { config } = useContext(Config);
     const {users, addUserToDB, getUserByName, deleteUser} = useContext(UserContext);
+    const { setUserCreatedCookie, getCookieByKey, deleteCookieByKey } = useContext(CookieManager);
     const [newUserName, setNewUserName] = useState("");
     const [currentUser, setCurrentUser] = useState(undefined);
     const [isShowPopup, setIsShowPopup] = useState(true);
     const [usernameIsTooShort, setUsernameIsTooShort] = useState(false);
     
     useEffect(() => {
-        if(!isShowPopup){
-            setCurrentUser(getUserByName(newUserName));
+        console.log("mount");
+        if(getCookieByKey(config.cookieUserKey) !== undefined){
+            console.log("current User name:",getCookieByKey(config.cookieUserKey));
+            // save cookie on reload or leaving the page for about 1h
+            // when user comes back in time load user from cookie again and delete cookie
+            // when user doesn't come back in time, delete cookie and user.
+
+        }else if(!isShowPopup){
+            let currUsr = getUserByName(newUserName);
+            setCurrentUser(currUsr);
+            setUserCreatedCookie(currUsr);
         }
     },[users]);
 
-    window.addEventListener("beforeunload", () => deleteUser(currentUser._id));
+    window.addEventListener("beforeunload", () => {
+        if(currentUser !== undefined){
+            deleteCookieByKey(currentUser.username);
+            deleteUser(currentUser);
+        }
+    });
 
     const handleUserNameInputChange = (e) => {
         setNewUserName(e.target.value);
@@ -44,6 +62,10 @@ const MainContentArea = () => {
             <>
                 <Overlay/>
                 <Popup>
+                        <PopupDescription>
+                            The User you're about to create will only exist as long as you stay on this page.
+                            If you leave, or reload the page your user will be deleted.
+                        </PopupDescription>
                     <FormWrapper>
                         <StyledInput
                             type="text"
@@ -54,10 +76,9 @@ const MainContentArea = () => {
 
                         {newUserName !== "" && 
                         <StyledButton 
-                        //onsubmit ???
                             onClick={onUserNameSubmit}
                         >
-                            Create. User.
+                            Create User.
                         </StyledButton>}
                     </FormWrapper>
                     {usernameIsTooShort && 
@@ -101,6 +122,14 @@ const Popup = styled.div`
     border: 2px var(--dark-grey);
     transition: all 0.2s;
     z-index: 3;
+`;
+
+const PopupDescription = styled.div`
+    font-size: 13px;
+    text-align: center;
+    color: var(--black);
+    padding-bottom: 20px;
+    font-weight: bold;
 `;
 
 const StyledButton = styled.button`
@@ -152,6 +181,7 @@ const StyledArea = styled.div`
 const Warning = styled.div`
     font-size: 13px;
     color: var(--warning);
+    text-align: center;
     font-weight: bold;
     padding-top: 20px;
 `;

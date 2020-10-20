@@ -54,16 +54,17 @@ const UserContextProvider = props => {
     }
 
     const getUserByName = (username) => {
-        let currentUser = users.find((user) => user.username === username);
-        return currentUser;
-
+            let currentUser = users.find((user) => user.username === username);
+            return currentUser;
     }
 
-    const deleteUser = async (userId) => {
-        await axios.delete(`http://localhost:5000/users/${userId}`)
-        .then(res => console.log(res.data))
-        .catch(err => console.log("error while deleting: "+ err));
-        setUsers(users.filter(user => user._id !== userId));
+    const deleteUser = async (user) => {
+        if(user !== undefined){
+            await axios.delete(`http://localhost:5000/users/${user._id}`)
+            .then(res => console.log(res.data))
+            .catch(err => console.log("error while deleting: "+ err));
+            setUsers(users.filter(el => el._id !== user._id));
+        }
     }
     
     return(
