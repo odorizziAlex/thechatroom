@@ -12,39 +12,35 @@ const socket = io('http://localhost:5000/', {secure:true, transports: ["polling"
 
 const MainContentArea = () => {
     const { config } = useContext(Config);
-    const {users, updateUsers, addUserToDB, getUserByName, deleteUser} = useContext(UserContext);
+    const { users, updateUsers, addUserToDB } = useContext(UserContext);
     const { setUserCreatedCookie, getCookieByKey, deleteCookieByKey } = useContext(CookieManager);
     const [newUserName, setNewUserName] = useState("");
     const [currentUser, setCurrentUser] = useState(undefined);
+    const [newUserRegistered, setNewUserRegistered] = useState(undefined);
     const [isShowPopup, setIsShowPopup] = useState(true);
     const [usernameIsTooShort, setUsernameIsTooShort] = useState(false);
     
+    // useEffect(() => {
+        
+
+    //         // if(data.username !== currentUser.username){
+    //         //     updateUsers(data);
+    //         // }
+    // }, []);
+
     useEffect(() => {
         socket.on("new-user-joined", data => {
             console.log("Got changes: ", data);
+            console.log(currentUser);
         })
-    }, []);
 
-    useEffect(() => {
-        // console.log("mount");
-        if(getCookieByKey(config.cookieUserKey) !== undefined){
-            // console.log("current User name:",getCookieByKey(config.cookieUserKey));
-            // save cookie on reload or leaving the page for about 1h
-            // when user comes back in time load user from cookie again and delete cookie
-            // when user doesn't come back in time, delete cookie and user.
-
-        }else if(!isShowPopup){
-            let currUsr = getUserByName(newUserName);
-            setCurrentUser(currUsr);
-            // setUserCreatedCookie(currUsr);
-            socket.emit("new-user-created", currUsr);
-        }
-    },[users]);
+        console.log("update DB");
+        // addUserToDB(currentUser);
+    },[newUserRegistered]);
 
     window.addEventListener("beforeunload", () => {
         if(currentUser !== undefined){
-            deleteCookieByKey(currentUser.username);
-            deleteUser(currentUser);
+            // deleteCookieByKey(currentUser.username);
         }
     });
 
@@ -61,7 +57,10 @@ const MainContentArea = () => {
                 customId:uuidv4(),
                 username:newUserName,
             }
-            addUserToDB(newUsr);
+            updateUsers(newUsr);
+            setCurrentUser(newUsr);
+            setNewUserRegistered(newUsr);
+            socket.emit("new-user-created", newUsr);
             setIsShowPopup(false);
         }
     }

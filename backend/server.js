@@ -1,6 +1,5 @@
 /**
  * CONNECT TO MONGO-DB WITH EXPRESS SERVER
- * 
  */
 const express = require('express');
 const port = process.PORT || 5000;

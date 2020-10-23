@@ -7,6 +7,11 @@ export const UserContext = createContext();
 const UserContextProvider = props => {
 
     const [users, setUsers] = useState();
+    const [currentUser, setCurrentUser] = useState(undefined);
+
+    const updateCurrentUser = (i) => {
+        setCurrentUser(i);
+    }
 
     const updateUsers = (newUser) => {
         const updatedList = [...users, newUser];
@@ -33,7 +38,6 @@ const UserContextProvider = props => {
         .catch(err => {
             console.log("error while adding: "+err);
         });
-        loadUsers();
     }
 
     const getUserByName = (username) => {
@@ -51,7 +55,7 @@ const UserContextProvider = props => {
     }
     
     return(
-        <UserContext.Provider value={{users, updateUsers, addUserToDB, getUserByName, deleteUser}}>
+        <UserContext.Provider value={{users,currentUser,setCurrentUser, updateUsers, addUserToDB}}>
             {props.children}
         </UserContext.Provider>
     )
