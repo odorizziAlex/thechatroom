@@ -26,9 +26,9 @@ const MainContentArea = () => {
     }, []);
 
     useEffect(() => {
-        console.log("mount");
+        // console.log("mount");
         if(getCookieByKey(config.cookieUserKey) !== undefined){
-            console.log("current User name:",getCookieByKey(config.cookieUserKey));
+            // console.log("current User name:",getCookieByKey(config.cookieUserKey));
             // save cookie on reload or leaving the page for about 1h
             // when user comes back in time load user from cookie again and delete cookie
             // when user doesn't come back in time, delete cookie and user.
@@ -36,7 +36,7 @@ const MainContentArea = () => {
         }else if(!isShowPopup){
             let currUsr = getUserByName(newUserName);
             setCurrentUser(currUsr);
-            setUserCreatedCookie(currUsr);
+            // setUserCreatedCookie(currUsr);
             socket.emit("new-user-created", currUsr);
         }
     },[users]);

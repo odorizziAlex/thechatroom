@@ -15,7 +15,7 @@ const ConvList = ({user}) => {
             console.log(users);
         }
     }
-    logging();
+    // logging();
     return(
         <StyledArea>
             <UserList> 
