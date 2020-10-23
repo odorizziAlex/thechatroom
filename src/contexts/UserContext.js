@@ -8,6 +8,11 @@ const UserContextProvider = props => {
 
     const [users, setUsers] = useState();
 
+    const updateUsers = (newUser) => {
+        const updatedList = [...users, newUser];
+        setUsers(updatedList);
+    }
+
     async function loadUsers() {
         const response = await axios.get("http://localhost:5000/users/");
         if(response.status !== 200){
@@ -46,7 +51,7 @@ const UserContextProvider = props => {
     }
     
     return(
-        <UserContext.Provider value={{users, addUserToDB, getUserByName, deleteUser}}>
+        <UserContext.Provider value={{users, updateUsers, addUserToDB, getUserByName, deleteUser}}>
             {props.children}
         </UserContext.Provider>
     )

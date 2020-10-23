@@ -12,7 +12,7 @@ const socket = io('http://localhost:5000/', {secure:true, transports: ["polling"
 
 const MainContentArea = () => {
     const { config } = useContext(Config);
-    const {users, addUserToDB, getUserByName, deleteUser} = useContext(UserContext);
+    const {users, updateUsers, addUserToDB, getUserByName, deleteUser} = useContext(UserContext);
     const { setUserCreatedCookie, getCookieByKey, deleteCookieByKey } = useContext(CookieManager);
     const [newUserName, setNewUserName] = useState("");
     const [currentUser, setCurrentUser] = useState(undefined);
