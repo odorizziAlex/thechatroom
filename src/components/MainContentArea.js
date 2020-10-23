@@ -6,18 +6,11 @@ import { UserContext } from "../contexts/UserContext";
 import { CookieManager } from "../cookies/CookieManager";
 import { Config } from "../config/Config";
 
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://127.0.0.1:5000";
+import io from "socket.io-client";
+const socket = io('http://localhost:5000/', {secure:true, transports: ["polling" ]});
+
 
 const MainContentArea = () => {
-    
-    // useEffect(()=>{
-    //     const socket = socketIOClient(ENDPOINT);
-    //     socket.on("changes", data => {
-    //         console.log(data);
-    //     })
-    // });
- 
     const { config } = useContext(Config);
     const {users, addUserToDB, getUserByName, deleteUser} = useContext(UserContext);
     const { setUserCreatedCookie, getCookieByKey, deleteCookieByKey } = useContext(CookieManager);
@@ -26,7 +19,11 @@ const MainContentArea = () => {
     const [isShowPopup, setIsShowPopup] = useState(true);
     const [usernameIsTooShort, setUsernameIsTooShort] = useState(false);
     
- 
+    useEffect(() => {
+        socket.on("new-user-joined", data => {
+            console.log("Got changes: ", data);
+        })
+    }, []);
 
     useEffect(() => {
         console.log("mount");
@@ -40,6 +37,7 @@ const MainContentArea = () => {
             let currUsr = getUserByName(newUserName);
             setCurrentUser(currUsr);
             setUserCreatedCookie(currUsr);
+            socket.emit("new-user-created", currUsr);
         }
     },[users]);
 

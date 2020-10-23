@@ -7,28 +7,6 @@ export const UserContext = createContext();
 const UserContextProvider = props => {
 
     const [users, setUsers] = useState();
-    // const [users, setUsers] = useState([
-    //     {
-    //         customId: 0,
-    //         name: "No one is online...",
-    //         convIds: []
-    //     },
-    //     {
-    //         customId: 1,
-    //         name: "User A",
-    //         convIds: [1,2]
-    //     },
-    //     {
-    //         customId: 2,
-    //         name: "User B",
-    //         convIds: [1]
-    //     },
-    //     {
-    //         customId: 3,
-    //         name: "User C",
-    //         convIds: [1]
-    //     }
-    // ]);
 
     async function loadUsers() {
         const response = await axios.get("http://localhost:5000/users/");
