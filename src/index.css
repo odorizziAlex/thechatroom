@@ -6,33 +6,35 @@
   --app-background: #a6a6a6;
   --light-grey: #f0f0f0;
   --dark-grey: #a6a6a6;
-  --black: #071331;
+  --white: #ffffff;
+  --black: #1a1a1a;
   --trans-white-20: rgba(255,255,255,0.2);
   --trans-white-60: rgba(255,255,255,0.6);
   --trans-red: rgba(255,0,0,0.5);
-  --trans-blue: rgba(0,0,255,0.5);
+  --petrol: #325862;
+  --petrol-light: #3d6b78;
   --trans-green: rgba(0,255,0,0.5);
+  --trans-black: rgba(7,19,49,0.5);
 
+  --h1-size: 25px;
   --h2-size: 18px;
-  --p-size: 15px;
+  --h3-size: 15px;
+  --p-size: 13px;
 
-  /* --warning: rgba(255, 60, 0, 0); */
   --warning: rgba(255, 60, 0, 1);;
 }
 
 body {
   margin: 0;
-  padding:0;
-  font-size: 13px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--black);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
