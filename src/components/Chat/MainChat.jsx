@@ -2,44 +2,80 @@ import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import sendIconGrey from '../../assets/send_light-grey.svg'
 import saveIconGrey from '../../assets/save_light-grey.svg'
+import downIconGrey from '../../assets/chevron-down_light-grey.svg'
 import SingleMessage from './SingleMessage'
 import io from 'socket.io-client'
+/**
+ * TODO
+ * stack messages from bottom up !discarted!
+ * make message input box multiline
+ *
+ * user created/ connected alert
+ * present user list
+ * save history and save users + pw
+ */
 
 const MainChat = () => {
-    const [state, setState] = useState({name: "", message: "" });
+    const [state, setState] = useState({ name: "", message: "" });
     const [headerName, setHeaderName] = useState("");
     const [chat, setChat] = useState([]);
     const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true);
+    const [userHasScrolled, setUserHasScrolled] = useState(false);
+    const [isNewMessageReceived, setIsNewMessageReceived] = useState(false);
 
     const socketRef = useRef();
+    const messageListRef = useRef();
 
-    /**
-     * TODO
-     * scrollable !check!
-     * stack messages from bottom up
-     * user created/ connected alert
-     * scroll down button if scrolled elsewhere
-     * stay scrolled down 
-     */
 
-    useEffect(()=> {
+    useEffect(() => {
+        let msgListRef = messageListRef.current;
+        msgListRef.addEventListener("scroll", checkScrollDistance);
+
         socketRef.current = io.connect("http://localhost:5000")
         socketRef.current.on('message', ({ name, message }) => {
-            console.log("state: ",state);
-            console.log("chat: ",chat);
-            setChat([ ...chat, { name, message } ])
+            // console.log("state: ",state);
+            // console.log("chat: ",chat);
+            setChat([...chat, { name, message }])
+            scrollHandler();
         })
-        socketRef.current.on('userDisconnected', () => {
-            console.log("user disconnected");
-        })
-        return () => socketRef.current.disconnect()
+
+        // socketRef.current.on('userDisconnected', () => {
+        //     console.log("user disconnected");
+        // })
+        return () => {
+            socketRef.current.disconnect();
+            msgListRef.removeEventListener("scroll", checkScrollDistance);
+        }
     },
-    [ chat ])
+        [chat, userHasScrolled, isNewMessageReceived ])
+
+    const scrollHandler = () => {
+        if (!userHasScrolled) {
+            scrollToNewestMessage();
+        } else if (userHasScrolled) {
+            setIsNewMessageReceived(true);
+        }
+    }
+
+    const scrollToNewestMessage = () => {
+        if (isNewMessageReceived) setIsNewMessageReceived(false);
+        messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+
+    const checkScrollDistance = () => {
+        let scrollDistance = messageListRef.current.scrollHeight - (messageListRef.current.scrollTop + messageListRef.current.offsetHeight);
+        if (scrollDistance > (messageListRef.current.offsetHeight / 4))
+            setUserHasScrolled(true)
+        else {
+            setUserHasScrolled(false);
+            setIsNewMessageReceived(false);
+        }
+    }
 
     const onUsernameSubmit = (event) => {
         event.preventDefault();
-        if(state.name !== ""){
-            setState({...state, [event.target.name]: event.target.value});
+        if (state.name !== "") {
+            setState({ ...state, [event.target.name]: event.target.value });
             setIsUsernamePopupVisible(false);
             setHeaderName(state.name);
         }
@@ -48,9 +84,10 @@ const MainChat = () => {
     const onMessageSubmit = (event) => {
         const { name, message } = state;
         event.preventDefault();
-        if(state.message !== ""){
-            socketRef.current.emit('message', {name, message});
-            setState({message: "", name });
+        if (state.message !== "") {
+            socketRef.current.emit('message', { name, message });
+            setState({ message: "", name });
+            scrollToNewestMessage();
         }
     }
 
@@ -73,9 +110,9 @@ const MainChat = () => {
                             placeholder="Username..."
                             autoComplete="off"
                         />
-                        <StyledButton text={state.name}>
+                        <StyledFormSubmitButton text={state.name}>
                             <img src={saveIconGrey} alt="save icon from feathericons.com" />
-                        </StyledButton>
+                        </StyledFormSubmitButton>
                     </InputForm>
                 </Popup>
             </Overlay>}
@@ -85,20 +122,30 @@ const MainChat = () => {
                         {headerName}
                     </Header>
                 </HeaderWrapper>
+                <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
-                        {chat.map(({name, message}, index) => {
-                            return(
-                                <SingleMessage 
+                        {chat.map(({ name, message }, index) => {
+                            return (
+                                <SingleMessage
                                     key={index}
                                     currentUsername={state.name}
                                     name={name}
                                     message={message}
-                                    />
-                                    );
-                                })}
+                                />
+                            );
+                        })}
                     </Messages>
-                {/* <StyledButton onClick={() => { console.log("scroll"); }}>Scroll</StyledButton> */}
-                <InputForm onSubmit={onMessageSubmit}>
+                </MessagesOutterWrapper>
+                <BottomAreaWrapper>
+                    <ScrollButtonWrapper>
+                        {isNewMessageReceived && userHasScrolled &&
+                            <NewMessageIndicator />}
+                        {userHasScrolled &&
+                            <StyledScrollButton onClick={() => scrollToNewestMessage()}>
+                                <img src={downIconGrey} alt="chevron down from feathericons.com" />
+                            </StyledScrollButton>}
+                    </ScrollButtonWrapper>
+                    <InputForm onSubmit={onMessageSubmit}>
                         <StyledInput
                             name="message"
                             onChange={onTextInputChange}
@@ -106,10 +153,11 @@ const MainChat = () => {
                             placeholder="Message..."
                             autoComplete="off"
                         />
-                        <StyledButton text={state.message}>
+                        <StyledFormSubmitButton text={state.message}>
                             <img src={sendIconGrey} alt="send icon from feathericons.com" />
-                        </StyledButton>
-                </InputForm>
+                        </StyledFormSubmitButton>
+                    </InputForm>
+                </BottomAreaWrapper>
             </ChatArea>
         </StyledArea>
     );
@@ -130,8 +178,6 @@ background: var(--trans-black);
 position: fixed;
 width: 100%;
 height: 100%;
-// filter: blur (8px);
-// -webkit-filter: blur (8px);
 backdrop-filter: blur(5px);
 top: 0;
 left: 0;
@@ -188,12 +234,48 @@ color: var(--petrol);
 font-weight: 700;
 `
 
-const Messages = styled.div`
+const MessagesOutterWrapper = styled.div`
 overflow-y: auto;
-display: inline-block;
 padding: 10px 10px 0px 10px;
-// height: 100%;
+height: 100%;
 width: 100%;
+`
+
+const Messages = styled.div`
+`
+
+const BottomAreaWrapper = styled.div`
+`
+
+const ScrollButtonWrapper = styled.div`
+position: absolute;
+margin-left: 10px;
+margin-top: -40px;
+z-index: 2;
+`
+
+const NewMessageIndicator = styled.div`
+position: absolute;
+pointer-events: none;
+width: 13px;
+height: 13px;
+margin-left: 22px;
+margin-top: -3px;
+border-radius: 6px;
+background: var(--warning);
+`
+
+const StyledScrollButton = styled.div`
+display: inline-block;
+border: 0;
+padding: 4px 4px 0px 4px;
+background: var(--petrol-light);
+border-radius: 10px;
+cursor: pointer;
+
+&:hover {
+    background: var(--petrol);
+}
 `
 
 const InputForm = styled.form`
@@ -216,7 +298,7 @@ width: 100%;
 }
 `
 
-const StyledButton = styled.button`
+const StyledFormSubmitButton = styled.button`
 border: 0;
 padding: 4px 16px 0px 15px;
 margin-left: 5px;
