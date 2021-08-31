@@ -5,11 +5,13 @@ import saveIconGrey from '../../assets/save_light-grey.svg'
 import downIconGrey from '../../assets/chevron-down_light-grey.svg'
 import SingleMessage from './SingleMessage'
 import io from 'socket.io-client'
+
 /**
  * TODO
  * stack messages from bottom up !discarted!
- * make message input box multiline
+ * make message input box multiline !check!
  *
+ * username input maximum letters, !!no space!! linebreak when too narrow
  * user created/ connected alert
  * present user list
  * save history and save users + pw
@@ -47,7 +49,7 @@ const MainChat = () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
     },
-        [chat, userHasScrolled, isNewMessageReceived ])
+        [chat, userHasScrolled, isNewMessageReceived])
 
     const scrollHandler = () => {
         if (!userHasScrolled) {
@@ -63,8 +65,14 @@ const MainChat = () => {
     }
 
     const checkScrollDistance = () => {
+        /**
+         * .scrollHeight is the overall height of the div, that can be accessed by scrolling
+         * .offsetHeight is the height of the displayed portion of a scrollable div
+         * .scrollTop gets or sets the number of pixels that an element's content is scrolled vertically
+         */
         let scrollDistance = messageListRef.current.scrollHeight - (messageListRef.current.scrollTop + messageListRef.current.offsetHeight);
-        if (scrollDistance > (messageListRef.current.offsetHeight / 4))
+        let messageListElHeight = messageListRef.current.offsetHeight;
+        if (scrollDistance > (messageListElHeight / 4))
             setUserHasScrolled(true)
         else {
             setUserHasScrolled(false);
@@ -75,7 +83,7 @@ const MainChat = () => {
     const onUsernameSubmit = (event) => {
         event.preventDefault();
         if (state.name !== "") {
-            setState({ ...state, [event.target.name]: event.target.value });
+            setState({ ...state, [event.target.name]: event.target.name });
             setIsUsernamePopupVisible(false);
             setHeaderName(state.name);
         }
@@ -95,6 +103,16 @@ const MainChat = () => {
         setState({ ...state, [event.target.name]: event.target.value });
     }
 
+    /**
+     * This handler is required to use enter as a submit option while using a
+     *  textarea instead of a standard input in a form.
+     */
+    const onEnterPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            onMessageSubmit(e);
+        }
+    }
+
     return (
         <StyledArea>
             {isUserNamePopupVisible && <Overlay>
@@ -109,6 +127,7 @@ const MainChat = () => {
                             value={state.name}
                             placeholder="Username..."
                             autoComplete="off"
+                            maxLength="25"
                         />
                         <StyledFormSubmitButton text={state.name}>
                             <img src={saveIconGrey} alt="save icon from feathericons.com" />
@@ -145,13 +164,16 @@ const MainChat = () => {
                                 <img src={downIconGrey} alt="chevron down from feathericons.com" />
                             </StyledScrollButton>}
                     </ScrollButtonWrapper>
-                    <InputForm onSubmit={onMessageSubmit}>
-                        <StyledInput
+                    <InputForm
+                        onSubmit={onMessageSubmit}
+                    >
+                        <StyledTextArea
                             name="message"
                             onChange={onTextInputChange}
                             value={state.message}
                             placeholder="Message..."
                             autoComplete="off"
+                            onKeyDown={onEnterPress}
                         />
                         <StyledFormSubmitButton text={state.message}>
                             <img src={sendIconGrey} alt="send icon from feathericons.com" />
@@ -284,6 +306,22 @@ width: 100%;
 padding: 10px;
 margin-top: auto;
 border-top: 1px solid var(--light-grey);
+`
+
+const StyledTextArea = styled.textarea`
+border-radius: 10px;
+overflow-y: auto;
+border: 0;
+background: var(--light-grey);
+padding: 20px;
+width: 100%;
+max-height: 55px;
+font: 13px Arial;
+resize: none;
+
+&:focus {
+    outline: none;
+}
 `
 
 const StyledInput = styled.input`

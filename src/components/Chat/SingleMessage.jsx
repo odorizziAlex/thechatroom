@@ -31,13 +31,13 @@ color: ${(props) => props.isOwnMessage ? "var(--light-grey)" : "var(--petrol-lig
 `
 
 const StyledUsername = styled.div`
-text-align: ${(props) => props.isOwnMessage ? "right" : "left"};
 font-size: 15px;
 font-weight: 750;
 margin-bottom: 5px
 `
 
 const StyledText = styled.div`
-text-align: ${(props) => props.isOwnMessage ? "right" : "left"};
 font-size: 13px;
+overflow-wrap: break-word;
+white-space: pre-wrap;
 `
