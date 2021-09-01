@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import sendIconGrey from '../../assets/send_light-grey.svg'
 import saveIconGrey from '../../assets/save_light-grey.svg'
 import downIconGrey from '../../assets/chevron-down_light-grey.svg'
+import infoIconLightPetrol from '../../assets/info_light-petrol.svg'
 import SingleMessage from './SingleMessage'
 import io from 'socket.io-client'
 
@@ -14,18 +15,22 @@ import io from 'socket.io-client'
  * username input maximum letters, !!no space!! linebreak when too narrow!! !check!
  * hide own username !check!
  * add timestamps !check!
- * user created/ connected alert
+ * user created/ connected alert !check!
+ * user left chat alert 
  * present user list
  * save history and save users + pw
  */
 
 const MainChat = () => {
-    const [messageState, setMessageState] = useState({ name: "", message: "", timestamp: "" });
+    const [state, setState] = useState({ name: "", message: "", timestamp: "" });
     const [headerName, setHeaderName] = useState("");
     const [chat, setChat] = useState([]);
+
     const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true);
     const [userHasScrolled, setUserHasScrolled] = useState(false);
     const [isNewMessageReceived, setIsNewMessageReceived] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
 
     const socketRef = useRef();
     const messageListRef = useRef();
@@ -34,29 +39,36 @@ const MainChat = () => {
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:5000")
         socketRef.current.on('message', ({ name, message, timestamp }) => {
-            // console.log("messageState: ",messageState);
-            // console.log("chat: ",chat);
             setChat([...chat, { name, message, timestamp }])
             scrollHandler();
-        })
-        
+        });
+
+        socketRef.current.on('userConnected', (name) => {
+            setAlertMessage([<strong>{name}</strong>,' joined the chat!']);
+            setShowAlert(true);
+            setTimeout(() => {
+                setShowAlert(false);
+                setAlertMessage("");
+            },3500);
+        });
+
         // socketRef.current.on('userDisconnected', () => {
         //     console.log("user disconnected");
         // })
+
         return () => {
             socketRef.current.disconnect();
         }
-        },
-        [chat])
-        
+    },[chat])
+
     useEffect(() => {
         let msgListRef = messageListRef.current;
         msgListRef.addEventListener("scroll", checkScrollDistance);
-        
+
         return () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
-    },[, userHasScrolled, isNewMessageReceived])
+    }, [userHasScrolled, isNewMessageReceived])
 
     const scrollHandler = () => {
         if (!userHasScrolled) {
@@ -89,31 +101,32 @@ const MainChat = () => {
 
     const onUsernameSubmit = (event) => {
         event.preventDefault();
-        if (messageState.name !== "") {
-            setMessageState({ ...messageState, [event.target.name]: event.target.value });
+        const name = event.target.name.value;
+        if (state.name !== "") {
+            socketRef.current.emit('userConnected', name);
+            setState({ ...state, [event.target.name]: event.target.value });
             setIsUsernamePopupVisible(false);
-            setHeaderName(messageState.name);
+            setHeaderName(state.name);
         }
     }
 
     const onMessageSubmit = (event) => {
-        const { name, message, timestamp } = messageState;
+        const { name, message, timestamp } = state;
         event.preventDefault();
-        if (messageState.message !== "") {
+        if (state.message !== "") {
             socketRef.current.emit('message', { name, message, timestamp });
-            setMessageState({ message: "", name, timestamp: "" });
+            setState({ message: "", name, timestamp: "" });
             scrollToNewestMessage();
         }
     }
 
     const onTextInputChange = (event) => {
-        // Wed Aug 30 2021 11:26:03 GMT+0200 (Central European Summer Time)
-        if(event.target.name === "name"){
+        if (event.target.name === "name") {
             let username = event.target.value;
             username = username.replace(/\s/g, '');
-            setMessageState({ ...messageState, [event.target.name]: username });
-        }else{
-            setMessageState({ ...messageState, [event.target.name]: event.target.value, timestamp: new Date().toLocaleString() });
+            setState({ ...state, [event.target.name]: username });
+        } else {
+            setState({ ...state, [event.target.name]: event.target.value, timestamp: new Date().toLocaleString() });
         }
     }
 
@@ -138,12 +151,12 @@ const MainChat = () => {
                         <StyledInput
                             name="name"
                             onChange={onTextInputChange}
-                            value={messageState.name}
+                            value={state.name}
                             placeholder="Username..."
                             autoComplete="off"
                             maxLength="25"
                         />
-                        <StyledFormSubmitButton text={messageState.name}>
+                        <StyledFormSubmitButton text={state.name}>
                             <img src={saveIconGrey} alt="save icon from feathericons.com" />
                         </StyledFormSubmitButton>
                     </InputForm>
@@ -154,6 +167,10 @@ const MainChat = () => {
                     <Header>
                         {headerName}
                     </Header>
+                    {showAlert && <StyledAlert>
+                        <AlertIcon src={infoIconLightPetrol} alt="info icon from feathericons.com" />
+                        <AlertMessage>{alertMessage}</AlertMessage>
+                    </StyledAlert>}
                 </HeaderWrapper>
                 <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
@@ -161,7 +178,7 @@ const MainChat = () => {
                             return (
                                 <SingleMessage
                                     key={index}
-                                    currentUsername={messageState.name}
+                                    currentUsername={state.name}
                                     name={name}
                                     message={message}
                                     timestamp={timestamp}
@@ -171,6 +188,7 @@ const MainChat = () => {
                     </Messages>
                 </MessagesOutterWrapper>
                 <BottomAreaWrapper>
+                    
                     <ScrollButtonWrapper>
                         {isNewMessageReceived && userHasScrolled &&
                             <NewMessageIndicator />}
@@ -185,12 +203,12 @@ const MainChat = () => {
                         <StyledTextArea
                             name="message"
                             onChange={onTextInputChange}
-                            value={messageState.message}
+                            value={state.message}
                             placeholder="Message..."
                             autoComplete="off"
                             onKeyDown={onEnterPress}
                         />
-                        <StyledFormSubmitButton text={messageState.message}>
+                        <StyledFormSubmitButton text={state.message}>
                             <img src={sendIconGrey} alt="send icon from feathericons.com" />
                         </StyledFormSubmitButton>
                     </InputForm>
@@ -279,11 +297,35 @@ const Messages = styled.div`
 const BottomAreaWrapper = styled.div`
 `
 
+const StyledAlert = styled.div`
+position: absolute;
+display: flex;
+justify-content: center;
+width: 50%;
+margin-left: 25%;
+margin-top: 20px;
+padding: 3px;
+text-align: center;
+// display: none;
+color: var(--light-petrol);
+background: var(--light-grey);
+font-size: var(--p-size);
+border-radius: 15px;
+`
+
+const AlertIcon = styled.img`
+width: 20px;
+`
+
+const AlertMessage = styled.div`
+margin-left: 10px;
+margin-top: 1.5px;
+`
+
 const ScrollButtonWrapper = styled.div`
 position: absolute;
 margin-left: 10px;
 margin-top: -40px;
-z-index: 2;
 `
 
 const NewMessageIndicator = styled.div`
@@ -301,7 +343,7 @@ const StyledScrollButton = styled.div`
 display: inline-block;
 border: 0;
 padding: 4px 4px 0px 4px;
-background: var(--petrol-light);
+background: var(--light-petrol);
 border-radius: 10px;
 cursor: pointer;
 
@@ -350,7 +392,7 @@ const StyledFormSubmitButton = styled.button`
 border: 0;
 padding: 4px 16px 0px 15px;
 margin-left: 5px;
-background: ${(props) => props.text !== "" ? "var(--petrol-light)" : "var(--dark-grey)"};
+background: ${(props) => props.text !== "" ? "var(--light-petrol)" : "var(--dark-grey)"};
 border-radius: 10px;
 cursor: pointer;
 cursor: ${(props) => props.text !== "" ? "pointer" : "default"};

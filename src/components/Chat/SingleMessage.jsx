@@ -47,8 +47,8 @@ border-radius: 10px;
 padding: 10px;
 max-width: 75%;
 margin-bottom: 10px;
-background: ${(props) => props.isOwnMessage ? "var(--petrol-light)" : "var(--light-grey)"};
-color: ${(props) => props.isOwnMessage ? "var(--light-grey)" : "var(--petrol-light)"};
+background: ${(props) => props.isOwnMessage ? "var(--light-petrol)" : "var(--light-grey)"};
+color: ${(props) => props.isOwnMessage ? "var(--light-grey)" : "var(--light-petrol)"};
 `
 
 const StyledUsername = styled.div`

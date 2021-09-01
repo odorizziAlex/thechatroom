@@ -12,7 +12,8 @@
   --trans-white-60: rgba(255,255,255,0.6);
   --trans-red: rgba(255,0,0,0.5);
   --petrol: #325862;
-  --petrol-light: #3d6b78;
+  --light-petrol: #3d6b78;
+  --trans-petrol: rgba(61, 107, 120, 0.8);
   --trans-green: rgba(0,255,0,0.5);
   --trans-black: rgba(7,19,49,0.5);
 
