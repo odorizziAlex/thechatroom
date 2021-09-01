@@ -11,7 +11,7 @@ import io from 'socket.io-client'
  * stack messages from bottom up !discarted!
  * make message input box multiline !check!
  *
- * username input maximum letters, !!no space!! linebreak when too narrow
+ * username input maximum letters, !!no space!! linebreak when too narrow!!
  * user created/ connected alert
  * present user list
  * save history and save users + pw
