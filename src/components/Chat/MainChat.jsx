@@ -11,14 +11,16 @@ import io from 'socket.io-client'
  * stack messages from bottom up !discarted!
  * make message input box multiline !check!
  *
- * username input maximum letters, !!no space!! linebreak when too narrow!!
+ * username input maximum letters, !!no space!! linebreak when too narrow!! !check!
+ * hide own username !check!
+ * add timestamps !check!
  * user created/ connected alert
  * present user list
  * save history and save users + pw
  */
 
 const MainChat = () => {
-    const [state, setState] = useState({ name: "", message: "" });
+    const [messageState, setMessageState] = useState({ name: "", message: "", timestamp: "" });
     const [headerName, setHeaderName] = useState("");
     const [chat, setChat] = useState([]);
     const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true);
@@ -30,26 +32,31 @@ const MainChat = () => {
 
 
     useEffect(() => {
-        let msgListRef = messageListRef.current;
-        msgListRef.addEventListener("scroll", checkScrollDistance);
-
         socketRef.current = io.connect("http://localhost:5000")
-        socketRef.current.on('message', ({ name, message }) => {
-            // console.log("state: ",state);
+        socketRef.current.on('message', ({ name, message, timestamp }) => {
+            // console.log("messageState: ",messageState);
             // console.log("chat: ",chat);
-            setChat([...chat, { name, message }])
+            setChat([...chat, { name, message, timestamp }])
             scrollHandler();
         })
-
+        
         // socketRef.current.on('userDisconnected', () => {
         //     console.log("user disconnected");
         // })
         return () => {
             socketRef.current.disconnect();
+        }
+        },
+        [chat])
+        
+    useEffect(() => {
+        let msgListRef = messageListRef.current;
+        msgListRef.addEventListener("scroll", checkScrollDistance);
+        
+        return () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
-    },
-        [chat, userHasScrolled, isNewMessageReceived])
+    },[, userHasScrolled, isNewMessageReceived])
 
     const scrollHandler = () => {
         if (!userHasScrolled) {
@@ -82,34 +89,41 @@ const MainChat = () => {
 
     const onUsernameSubmit = (event) => {
         event.preventDefault();
-        if (state.name !== "") {
-            setState({ ...state, [event.target.name]: event.target.name });
+        if (messageState.name !== "") {
+            setMessageState({ ...messageState, [event.target.name]: event.target.value });
             setIsUsernamePopupVisible(false);
-            setHeaderName(state.name);
+            setHeaderName(messageState.name);
         }
     }
 
     const onMessageSubmit = (event) => {
-        const { name, message } = state;
+        const { name, message, timestamp } = messageState;
         event.preventDefault();
-        if (state.message !== "") {
-            socketRef.current.emit('message', { name, message });
-            setState({ message: "", name });
+        if (messageState.message !== "") {
+            socketRef.current.emit('message', { name, message, timestamp });
+            setMessageState({ message: "", name, timestamp: "" });
             scrollToNewestMessage();
         }
     }
 
     const onTextInputChange = (event) => {
-        setState({ ...state, [event.target.name]: event.target.value });
+        // Wed Aug 30 2021 11:26:03 GMT+0200 (Central European Summer Time)
+        if(event.target.name === "name"){
+            let username = event.target.value;
+            username = username.replace(/\s/g, '');
+            setMessageState({ ...messageState, [event.target.name]: username });
+        }else{
+            setMessageState({ ...messageState, [event.target.name]: event.target.value, timestamp: new Date().toLocaleString() });
+        }
     }
 
     /**
      * This handler is required to use enter as a submit option while using a
      *  textarea instead of a standard input in a form.
      */
-    const onEnterPress = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            onMessageSubmit(e);
+    const onEnterPress = (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            onMessageSubmit(event);
         }
     }
 
@@ -124,12 +138,12 @@ const MainChat = () => {
                         <StyledInput
                             name="name"
                             onChange={onTextInputChange}
-                            value={state.name}
+                            value={messageState.name}
                             placeholder="Username..."
                             autoComplete="off"
                             maxLength="25"
                         />
-                        <StyledFormSubmitButton text={state.name}>
+                        <StyledFormSubmitButton text={messageState.name}>
                             <img src={saveIconGrey} alt="save icon from feathericons.com" />
                         </StyledFormSubmitButton>
                     </InputForm>
@@ -143,13 +157,14 @@ const MainChat = () => {
                 </HeaderWrapper>
                 <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
-                        {chat.map(({ name, message }, index) => {
+                        {chat.map(({ name, message, timestamp }, index) => {
                             return (
                                 <SingleMessage
                                     key={index}
-                                    currentUsername={state.name}
+                                    currentUsername={messageState.name}
                                     name={name}
                                     message={message}
+                                    timestamp={timestamp}
                                 />
                             );
                         })}
@@ -170,12 +185,12 @@ const MainChat = () => {
                         <StyledTextArea
                             name="message"
                             onChange={onTextInputChange}
-                            value={state.message}
+                            value={messageState.message}
                             placeholder="Message..."
                             autoComplete="off"
                             onKeyDown={onEnterPress}
                         />
-                        <StyledFormSubmitButton text={state.message}>
+                        <StyledFormSubmitButton text={messageState.message}>
                             <img src={sendIconGrey} alt="send icon from feathericons.com" />
                         </StyledFormSubmitButton>
                     </InputForm>
@@ -232,10 +247,7 @@ display: flex;
 flex-direction: column;
 background: var(--white);
 border-radius: 10px;
-// min-height: 500px;
-// max-height: 98%;
-// max-width: 98%;
-width: 98%;
+width: 99%;
 height: 98%;
 `;
 
@@ -245,15 +257,13 @@ border-bottom: 1px solid var(--light-grey);
 `
 
 const Header = styled.div`
-display: flex;
 width: 100%;
-padding: 10px;
-margin-top: auto;
 background: var(--light-grey);
 border-radius: 10px;
 padding: 15px;
 color: var(--petrol);
 font-weight: 700;
+text-align: right;
 `
 
 const MessagesOutterWrapper = styled.div`
