@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
+import toast, { Toaster } from 'react-hot-toast'
 import sendIconGrey from '../../assets/send_light-grey.svg'
 import saveIconGrey from '../../assets/save_light-grey.svg'
 import downIconGrey from '../../assets/chevron-down_light-grey.svg'
@@ -9,19 +10,17 @@ import io from 'socket.io-client'
 
 /**
  * TODO
- * stack messages from bottom up !discarted!
- * make message input box multiline !check!
- *
- * username input maximum letters, !!no space!! linebreak when too narrow!! !check!
- * hide own username !check!
- * add timestamps !check!
- * user created/ connected alert !check!
- * user left chat alert 
+ * user left chat toast 
+ *  // refactor setTimeout! when message changes multiple times during 3500ms
+    // it wont stay for additional 3500 ms
+    also figure out how to show username that loggs off.
+ * 
  * present user list
  * save history and save users + pw
  */
 
 const MainChat = () => {
+
     const [state, setState] = useState({ name: "", message: "", timestamp: "" });
     const [headerName, setHeaderName] = useState("");
     const [chat, setChat] = useState([]);
@@ -29,8 +28,6 @@ const MainChat = () => {
     const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true);
     const [userHasScrolled, setUserHasScrolled] = useState(false);
     const [isNewMessageReceived, setIsNewMessageReceived] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertMessage, setAlertMessage] = useState("");
 
     const socketRef = useRef();
     const messageListRef = useRef();
@@ -44,22 +41,13 @@ const MainChat = () => {
         });
 
         socketRef.current.on('userConnected', (name) => {
-            setAlertMessage([<strong>{name}</strong>,' joined the chat!']);
-            setShowAlert(true);
-            setTimeout(() => {
-                setShowAlert(false);
-                setAlertMessage("");
-            },3500);
+            notifyOnUserJoined(name);
         });
-
-        // socketRef.current.on('userDisconnected', () => {
-        //     console.log("user disconnected");
-        // })
 
         return () => {
             socketRef.current.disconnect();
         }
-    },[chat])
+    }, [chat])
 
     useEffect(() => {
         let msgListRef = messageListRef.current;
@@ -69,6 +57,18 @@ const MainChat = () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
     }, [userHasScrolled, isNewMessageReceived])
+
+    const notifyOnUserJoined = (name) => {
+        toast([<strong key="1">{name} &nbsp;</strong>,<strong key="2" style={{color: "var(--success)"}}>joined &nbsp;</strong>,' the chat!'],{
+            icon: <img src={infoIconLightPetrol} alt="info icon from feathericons.com" />
+        });
+    }
+
+    const notifyOnUserLeave = (name) => {
+        toast([<strong key="1">{name} &nbsp;</strong>,<strong key="2" style={{color: "var(--warning)"}}>left &nbsp;</strong>,' the chat!'],{
+            icon: <img src={infoIconLightPetrol} alt="info icon from feathericons.com" />
+        });
+    }
 
     const scrollHandler = () => {
         if (!userHasScrolled) {
@@ -163,14 +163,11 @@ const MainChat = () => {
                 </Popup>
             </Overlay>}
             <ChatArea>
+                <Toaster/>
                 <HeaderWrapper>
                     <Header>
                         {headerName}
                     </Header>
-                    {showAlert && <StyledAlert>
-                        <AlertIcon src={infoIconLightPetrol} alt="info icon from feathericons.com" />
-                        <AlertMessage>{alertMessage}</AlertMessage>
-                    </StyledAlert>}
                 </HeaderWrapper>
                 <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
@@ -188,7 +185,7 @@ const MainChat = () => {
                     </Messages>
                 </MessagesOutterWrapper>
                 <BottomAreaWrapper>
-                    
+
                     <ScrollButtonWrapper>
                         {isNewMessageReceived && userHasScrolled &&
                             <NewMessageIndicator />}
@@ -295,31 +292,6 @@ const Messages = styled.div`
 `
 
 const BottomAreaWrapper = styled.div`
-`
-
-const StyledAlert = styled.div`
-position: absolute;
-display: flex;
-justify-content: center;
-width: 50%;
-margin-left: 25%;
-margin-top: 20px;
-padding: 3px;
-text-align: center;
-// display: none;
-color: var(--light-petrol);
-background: var(--light-grey);
-font-size: var(--p-size);
-border-radius: 15px;
-`
-
-const AlertIcon = styled.img`
-width: 20px;
-`
-
-const AlertMessage = styled.div`
-margin-left: 10px;
-margin-top: 1.5px;
 `
 
 const ScrollButtonWrapper = styled.div`

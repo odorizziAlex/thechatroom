@@ -14,15 +14,15 @@
   --petrol: #325862;
   --light-petrol: #3d6b78;
   --trans-petrol: rgba(61, 107, 120, 0.8);
-  --trans-green: rgba(0,255,0,0.5);
   --trans-black: rgba(7,19,49,0.5);
-
+  
   --h1-size: 25px;
   --h2-size: 18px;
   --h3-size: 15px;
   --p-size: 13px;
   --p-small-size: 10px;
-
+  
+  --success: rgb(0, 182, 0);
   --warning: rgb(206, 48, 0);;
 }
 
