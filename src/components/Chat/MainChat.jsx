@@ -10,13 +10,11 @@ import io from 'socket.io-client'
 
 /**
  * TODO
- * user left chat toast 
- *  // refactor setTimeout! when message changes multiple times during 3500ms
-    // it wont stay for additional 3500 ms
-    also figure out how to show username that loggs off.
  * 
+ * save chat history & users + pw
  * present user list
- * save history and save users + pw
+ * show toast on leaving chat  
+ * 
  */
 
 const MainChat = () => {
@@ -52,24 +50,25 @@ const MainChat = () => {
     useEffect(() => {
         let msgListRef = messageListRef.current;
         msgListRef.addEventListener("scroll", checkScrollDistance);
-
+        
         return () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
     }, [])
-
+    
     const notifyOnUserJoined = (name) => {
         toast([<strong key="1">{name} &nbsp;</strong>,<strong key="2" style={{color: "var(--success)"}}>joined &nbsp;</strong>,' the chat!'],{
             icon: <img src={infoIconLightPetrol} alt="info icon from feathericons.com" />
         });
     }
-    // currently not in use.
+    // not yet in use.
     const notifyOnUserLeave = (name) => {
         toast([<strong key="1">{name} &nbsp;</strong>,<strong key="2" style={{color: "var(--warning)"}}>left &nbsp;</strong>,' the chat!'],{
             icon: <img src={infoIconLightPetrol} alt="info icon from feathericons.com" />
         });
     }
-
+    
+    // Handling visibility of scroll down button and new message received button.
     const scrollHandler = () => {
         if (!userHasScrolled) {
             scrollToNewestMessage();
@@ -85,6 +84,7 @@ const MainChat = () => {
 
     const checkScrollDistance = () => {
         /**
+         * Note:
          * .scrollHeight is the overall height of the div, that can be accessed by scrolling
          * .offsetHeight is the height of the displayed portion of a scrollable div
          * .scrollTop gets or sets the number of pixels that an element's content is scrolled vertically
@@ -185,7 +185,6 @@ const MainChat = () => {
                     </Messages>
                 </MessagesOutterWrapper>
                 <BottomAreaWrapper>
-
                     <ScrollButtonWrapper>
                         {isNewMessageReceived && userHasScrolled &&
                             <NewMessageIndicator />}

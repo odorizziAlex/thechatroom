@@ -1,6 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
 
+/**
+ * refactor date formatting
+ */
+
 const SingleMessage = ({currentUsername, name, message, timestamp}) => {
 
     const formatDate = () => {
