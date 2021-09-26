@@ -47,7 +47,7 @@ const MainChat = () => {
         return () => {
             socketRef.current.disconnect();
         }
-    }, [chat])
+    }, [chat, userHasScrolled, isNewMessageReceived])
 
     useEffect(() => {
         let msgListRef = messageListRef.current;
@@ -56,14 +56,14 @@ const MainChat = () => {
         return () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
-    }, [userHasScrolled, isNewMessageReceived])
+    }, [])
 
     const notifyOnUserJoined = (name) => {
         toast([<strong key="1">{name} &nbsp;</strong>,<strong key="2" style={{color: "var(--success)"}}>joined &nbsp;</strong>,' the chat!'],{
             icon: <img src={infoIconLightPetrol} alt="info icon from feathericons.com" />
         });
     }
-
+    // currently not in use.
     const notifyOnUserLeave = (name) => {
         toast([<strong key="1">{name} &nbsp;</strong>,<strong key="2" style={{color: "var(--warning)"}}>left &nbsp;</strong>,' the chat!'],{
             icon: <img src={infoIconLightPetrol} alt="info icon from feathericons.com" />
@@ -91,8 +91,8 @@ const MainChat = () => {
          */
         let scrollDistance = messageListRef.current.scrollHeight - (messageListRef.current.scrollTop + messageListRef.current.offsetHeight);
         let messageListElHeight = messageListRef.current.offsetHeight;
-        if (scrollDistance > (messageListElHeight / 4))
-            setUserHasScrolled(true)
+        if (scrollDistance > (messageListElHeight / 2))
+            setUserHasScrolled(true);
         else {
             setUserHasScrolled(false);
             setIsNewMessageReceived(false);
