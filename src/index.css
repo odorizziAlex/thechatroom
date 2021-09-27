@@ -3,25 +3,21 @@
 }
 
 :root{
-  --app-background: #a6a6a6;
-  --light-grey: #f0f0f0;
-  --dark-grey: #a6a6a6;
-  --white: #ffffff;
-  --black: #1a1a1a;
-  --trans-white-20: rgba(255,255,255,0.2);
-  --trans-white-60: rgba(255,255,255,0.6);
-  --trans-red: rgba(255,0,0,0.5);
-  --petrol: #325862;
-  --light-petrol: #3d6b78;
-  --trans-petrol: rgba(61, 107, 120, 0.8);
-  --trans-black: rgba(7,19,49,0.5);
+  
+  --global-background: #a6a6a6;
+  --structural-elements: #f0f0f0;
+  --disabled-element: #a6a6a6;
+  --chat-background: #ffffff;
+  
+  --color-accent-light: #3d6b78;
+  --color-accent-dark: #325862;
   
   --h1-size: 25px;
   --h2-size: 18px;
-  --h3-size: 15px;
-  --p-size: 13px;
+  --p-size: 15px;
   --p-small-size: 10px;
   
+  --trans-black: rgba(7,19,49,0.5);
   --success: rgb(0, 182, 0);
   --warning: rgb(206, 48, 0);;
 }
@@ -39,4 +35,16 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.darkTheme {
+  --global-background: #1d1d1d;
+  --structural-elements: #1a1a1a;
+  --disabled-element: #3e3e3e;
+  --chat-background: #0c0c0c;
+  
+  --color-accent-light: #9c2700;
+  --color-accent-dark: #b52d00;
+
+  --trans-black: rgba(41, 27, 26, 0.5);
 }

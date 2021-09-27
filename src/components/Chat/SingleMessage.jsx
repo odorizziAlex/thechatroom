@@ -51,8 +51,8 @@ border-radius: 10px;
 padding: 10px;
 max-width: 75%;
 margin-bottom: 10px;
-background: ${(props) => props.isOwnMessage ? "var(--light-petrol)" : "var(--light-grey)"};
-color: ${(props) => props.isOwnMessage ? "var(--light-grey)" : "var(--light-petrol)"};
+background: ${(props) => props.isOwnMessage ? "var(--color-accent-light)" : "var(--structural-elements)"};
+color: ${(props) => props.isOwnMessage ? "var(--structural-elements)" : "var(--color-accent-light)"};
 `
 
 const StyledUsername = styled.div`
@@ -73,5 +73,5 @@ const StyledTimestamp = styled.div`
 font-size: var(--p-small-size);
 margin-top: 5px;
 text-align: ${(props) => props.isOwnMessage ? "right" : "left"} ;
-color: ${(props) => props.isOwnMessage ? "var(--light-grey)" : "var(--light-petrol)"} ;
+color: ${(props) => props.isOwnMessage ? "var(--structural-elements)" : "var(--color-accent-light)"} ;
 `
