@@ -6,7 +6,8 @@ import sendIconDark from '../../assets/send-dark.svg'
 import saveIconLight from '../../assets/save_light-grey.svg'
 import saveIconDark from '../../assets/save-dark.svg'
 import downIcon from '../../assets/chevron-down_light-grey.svg'
-import infoIcon from '../../assets/info_light-petrol.svg'
+import infoIconLight from '../../assets/alert-circle-petrol.svg'
+import infoIconDark from '../../assets/alert-circle-fire.svg'
 import themeIconLight from '../../assets/moon-light-petrol.svg'
 import themeIconDark from '../../assets/sun-light-fire.svg'
 import SingleMessage from './SingleMessage'
@@ -73,13 +74,21 @@ const MainChat = () => {
 
     const notifyOnUserJoined = (name) => {
         toast([<strong key="1">{name} &nbsp;</strong>, <strong key="2" style={{ color: "var(--success)" }}>joined &nbsp;</strong>, ' the chat!'], {
-            icon: <img src={infoIcon} alt="info icon from feathericons.com" />
+            icon: <img src={isDarkTheme ? infoIconDark : infoIconLight} alt="info icon from feathericons.com"/>,
+            style: {
+                background: "var(--chat-background)",
+                color: "var(--color-accent-light)"
+            }
         });
     }
     // not yet in use.
     const notifyOnUserLeave = (name) => {
         toast([<strong key="1">{name} &nbsp;</strong>, <strong key="2" style={{ color: "var(--warning)" }}>left &nbsp;</strong>, ' the chat!'], {
-            icon: <img src={infoIcon} alt="info icon from feathericons.com" />
+            icon: <img src={isDarkTheme ? infoIconDark : infoIconLight} alt="info icon from feathericons.com" />,
+            style: {
+                background: "var(--chat-background)",
+                color: "var(--color-accent-light)"
+            }
         });
     }
 
@@ -300,9 +309,10 @@ display: inline-block;
 font-size: var(--p-small-size);
 right: 14px;
 top: 32px;
+width: 75px;
 background: var(--color-accent-light);
 color: var(--structural-elements);
-padding: 10px;
+padding: 5px;
 margin-top: 5px;
 border-radius: 5px;
 opacity: 0;
