@@ -43,8 +43,8 @@ code {
   --disabled-element: #3e3e3e;
   --chat-background: #0c0c0c;
   
-  --color-accent-light: #9c2700;
-  --color-accent-dark: #b52d00;
+  --color-accent-light: #3a8585;
+  --color-accent-dark: #307173;
 
-  --trans-black: rgba(41, 27, 26, 0.5);
+  --trans-black: rgba(26, 40, 41, 0.5);
 }

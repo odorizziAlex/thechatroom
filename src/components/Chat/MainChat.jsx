@@ -5,20 +5,23 @@ import sendIconLight from '../../assets/send_light-grey.svg'
 import sendIconDark from '../../assets/send-dark.svg'
 import saveIconLight from '../../assets/save_light-grey.svg'
 import saveIconDark from '../../assets/save-dark.svg'
-import downIcon from '../../assets/chevron-down_light-grey.svg'
+import downIconLight from '../../assets/chevron-down_light-grey.svg'
+import downIconDark from '../../assets/chevron-down-dark.svg'
 import infoIconLight from '../../assets/alert-circle-petrol.svg'
-import infoIconDark from '../../assets/alert-circle-fire.svg'
+import infoIconDark from '../../assets/alert-circle-green.svg'
 import themeIconLight from '../../assets/moon-light-petrol.svg'
-import themeIconDark from '../../assets/sun-light-fire.svg'
+import themeIconDark from '../../assets/sun-green.svg'
 import SingleMessage from './SingleMessage'
 import io from 'socket.io-client'
 
 /**
  * TODO
  * 
- * save chat history & users + pw
+ * create user authentication
+ * save and restore chat history
  * present user list
  * show toast on leaving chat  
+ * cookie for theme!
  * 
  */
 
@@ -182,7 +185,7 @@ const MainChat = () => {
                         <StyledThemeIcon
                             onClick={() => changeColorTheme()}>
                             <img src={isDarkTheme ? themeIconDark : themeIconLight} alt="moon icon from feathericons.com" />
-                            <Tooltip>Change color theme.</Tooltip>
+                            <Tooltip>Activate {isDarkTheme ? "light theme":"dark theme"}.</Tooltip>
                         </StyledThemeIcon>
                     </PopupHeaderWrapper>
                     <InputForm onSubmit={onUsernameSubmit}>
@@ -210,7 +213,7 @@ const MainChat = () => {
                         <StyledThemeIcon
                             onClick={() => changeColorTheme()}>
                             <img src={isDarkTheme ? themeIconDark : themeIconLight} alt="moon/ sun icon from feathericons.com" />
-                            <Tooltip>Change color theme.</Tooltip>
+                            <Tooltip>Activate {isDarkTheme ? "light theme":"dark theme"}.</Tooltip>
                         </StyledThemeIcon>
                     </Header>
                 </HeaderWrapper>
@@ -235,7 +238,7 @@ const MainChat = () => {
                             <NewMessageIndicator />}
                         {userHasScrolled &&
                             <StyledScrollButton onClick={() => scrollToNewestMessage()}>
-                                <img src={downIcon} alt="chevron down from feathericons.com" />
+                                <img src={isDarkTheme ? downIconDark : downIconLight} alt="chevron down from feathericons.com" />
                             </StyledScrollButton>}
                     </ScrollButtonWrapper>
                     <InputForm
@@ -300,7 +303,6 @@ justify-content: center;
 const StyledThemeIcon = styled.div`
 cursor: pointer;
 font-weight: 700;
-
 `
 
 const Tooltip = styled.div`
@@ -325,6 +327,7 @@ ${StyledThemeIcon}:hover & {
     opacity: 1;
     transform: scaleY(1);
 }
+
 `;
 
 const PopupDescription = styled.div`
