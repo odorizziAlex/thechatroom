@@ -320,7 +320,7 @@ border-radius: 5px;
 opacity: 0;
 transform: scaleY(0);
 transform-origin: top;
-transition: all 0.2s;
+transition: all 0.1s;
 box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
 
 ${StyledThemeIcon}:hover & {
