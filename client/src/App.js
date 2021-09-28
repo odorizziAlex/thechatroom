@@ -1,9 +1,13 @@
 import React from 'react'
 import MainChat from './components/Chat/MainChat.jsx'
+import { Provider } from 'react-redux'
+import store from './store'
 
 function App() {
   return (
-    <MainChat/>
+    <Provider store={store}>
+      <MainChat/>
+    </Provider>
   );
 }
 

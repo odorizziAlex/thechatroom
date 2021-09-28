@@ -13,6 +13,9 @@ import themeIconLight from '../../assets/moon-light-petrol.svg'
 import themeIconDark from '../../assets/sun-green.svg'
 import SingleMessage from './SingleMessage'
 import io from 'socket.io-client'
+import { connect } from 'react-redux'
+import { getMessages } from '../../actions/messageActions'
+import PropTypes from 'prop-types'
 
 /**
  * TODO
@@ -29,7 +32,7 @@ import io from 'socket.io-client'
  * 
  */
 
-const MainChat = () => {
+const MainChat = (props) => {
 
     const [state, setState] = useState({ name: "", message: "", timestamp: "" });
     const [headerName, setHeaderName] = useState("");
@@ -43,6 +46,16 @@ const MainChat = () => {
     const socketRef = useRef();
     const messageListRef = useRef();
 
+    useEffect(() => {
+        let msgListRef = messageListRef.current;
+        msgListRef.addEventListener("scroll", checkScrollDistance);
+        
+        setChat(props.message.messages)
+        
+        return () => {
+            msgListRef.removeEventListener("scroll", checkScrollDistance);
+        }
+    }, [])
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:5000")
@@ -59,14 +72,6 @@ const MainChat = () => {
             socketRef.current.disconnect();
         }
     }, [chat, userHasScrolled, isNewMessageReceived, isDarkTheme])
-
-    useEffect(() => {
-        let msgListRef = messageListRef.current;
-        msgListRef.addEventListener("scroll", checkScrollDistance);
-        return () => {
-            msgListRef.removeEventListener("scroll", checkScrollDistance);
-        }
-    }, [])
 
     const changeColorTheme = () => {
         let chatBodyClassList = document.body.classList;
@@ -266,7 +271,16 @@ const MainChat = () => {
     );
 }
 
-export default MainChat;
+MainChat.propTypes = {
+    getMessages: PropTypes.func.isRequired,
+    message: PropTypes.object.isRequired
+}
+
+const mapStateToProps = (state) => ({
+    message: state.message
+})
+
+export default connect(mapStateToProps, { getMessages })(MainChat);
 
 const StyledArea = styled.div`
 position: fixed;
