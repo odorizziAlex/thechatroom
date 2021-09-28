@@ -21,7 +21,11 @@ import io from 'socket.io-client'
  * save and restore chat history
  * present user list
  * show toast on leaving chat  
- * cookie for theme!
+ * Animate:
+ *  incoming messages
+ *  hide popup
+ *  scrolldown button show and hide
+ *  scrolldown action
  * 
  */
 
