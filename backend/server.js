@@ -4,18 +4,19 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const messages = require('./routes/api/messages');
 
 const app = express();
 
-// bodyparser middleware
-app.use(bodyParser.json());
+// bodyparser middleware deprecated. Instead use:
+app.use(express.json());
 
 // DB Config
 const db = require('./config/keys').mongoURI;
 
 // Connect to mongodb
-mongoose.connect(db)
+mongoose
+    .connect(db)
     .then(()=>console.log("MongoDB connected..."))
     .catch(err=>console.log(err))
 
@@ -40,5 +41,8 @@ io.on('connection', socket => {
     })
 })
 
+// Use Routes
+app.use('/api/messages', messages);
+
 //----------------
-server.listen(PORT, ()=>console.log(`Server started on port ${PORT}`))
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`))

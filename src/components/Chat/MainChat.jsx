@@ -182,11 +182,11 @@ const MainChat = () => {
                         <PopupDescription>
                             Insert your Username!
                         </PopupDescription>
-                        <StyledThemeIcon
+                        {/* <StyledThemeIcon
                             onClick={() => changeColorTheme()}>
                             <img src={isDarkTheme ? themeIconDark : themeIconLight} alt="moon icon from feathericons.com" />
                             <Tooltip>Activate {isDarkTheme ? "light theme":"dark theme"}.</Tooltip>
-                        </StyledThemeIcon>
+                        </StyledThemeIcon> */}
                     </PopupHeaderWrapper>
                     <InputForm onSubmit={onUsernameSubmit}>
                         <StyledInput
@@ -309,8 +309,8 @@ const Tooltip = styled.div`
 position: absolute;
 display: inline-block;
 font-size: var(--p-small-size);
-right: 14px;
-top: 32px;
+right: 21px;
+top: 45px;
 width: 75px;
 background: var(--color-accent-light);
 color: var(--structural-elements);
@@ -333,7 +333,7 @@ ${StyledThemeIcon}:hover & {
 const PopupDescription = styled.div`
 text-align:center;
 padding-top: 4px;
-padding-right: 39px;
+// padding-right: 39px;
 color: var(--color-accent-light);
 font-weight: 700;
 `

@@ -2,7 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 
 /**
- * refactor date formatting
+ * refactor date formatting and timestamps.
+ * Maybe use date.now instead and format.
  */
 
 const SingleMessage = ({currentUsername, name, message, timestamp}) => {
