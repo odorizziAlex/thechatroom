@@ -14,11 +14,15 @@ import themeIconDark from '../../assets/sun-green.svg'
 import SingleMessage from './SingleMessage'
 import io from 'socket.io-client'
 import { connect } from 'react-redux'
-import { getMessages } from '../../actions/messageActions'
+import { getMessages, addMessage, deleteMessage } from '../../actions/messageActions'
 import PropTypes from 'prop-types'
+import uuid from 'uuid'
 
 /**
  * TODO
+ * 
+ * https://www.youtube.com/watch?v=TO6akRGXhx8
+ * 
  * 
  * create user authentication
  * save and restore chat history
@@ -34,11 +38,12 @@ import PropTypes from 'prop-types'
 
 const MainChat = (props) => {
 
-    const [state, setState] = useState({ name: "", message: "", timestamp: "" });
-    const [headerName, setHeaderName] = useState("");
+    const [state, setState] = useState({ _id: "", name: "", message: "", timestamp: "" }); 
+    const [headerName, setHeaderName] = useState(""); 
     const [chat, setChat] = useState([]);
+    const { messages } = props.message;
 
-    const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true);
+    const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true); 
     const [userHasScrolled, setUserHasScrolled] = useState(false);
     const [isNewMessageReceived, setIsNewMessageReceived] = useState(false);
     const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -49,9 +54,10 @@ const MainChat = (props) => {
     useEffect(() => {
         let msgListRef = messageListRef.current;
         msgListRef.addEventListener("scroll", checkScrollDistance);
-        
-        setChat(props.message.messages)
-        
+
+        props.getMessages()
+        setChat(messages);
+
         return () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
@@ -59,14 +65,19 @@ const MainChat = (props) => {
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:5000")
-        socketRef.current.on('message', ({ name, message, timestamp }) => {
-            setChat([...chat, { name, message, timestamp }])
+        socketRef.current.on('message', ({ _id, name, message, timestamp }) => {
+            setChat([...chat, { _id, name, message, timestamp }])
             scrollHandler();
         });
 
         socketRef.current.on('userConnected', (name) => {
             notifyOnUserJoined(name);
         });
+
+        socketRef.current.on('messageDeleted', (_id) => {
+            setChat(chat.filter(message => message._id !== _id));
+            console.log(messages);
+        })
 
         return () => {
             socketRef.current.disconnect();
@@ -154,11 +165,18 @@ const MainChat = (props) => {
     }
 
     const onMessageSubmit = (event) => {
-        const { name, message, timestamp } = state;
+        const { _id, name, message, timestamp } = state;
+
         event.preventDefault();
+
         if (state.message !== "") {
-            socketRef.current.emit('message', { name, message, timestamp });
-            setState({ message: "", name, timestamp: "" });
+            let newId = uuid();
+            // add message via action to state
+            props.addMessage({ _id: newId, name, message, timestamp });
+
+            // send message via socket
+            socketRef.current.emit('message', { _id: newId, name, message, timestamp });
+            setState({ _id: "", name, message: "", timestamp: "" });
             scrollToNewestMessage();
         }
     }
@@ -183,6 +201,11 @@ const MainChat = (props) => {
         }
     }
 
+    const onDeleteClick = (_id) => {
+        props.deleteMessage(_id);
+        socketRef.current.emit('messageDeleted', _id);
+    }
+
     return (
         <StyledArea>
             {isUserNamePopupVisible && <Overlay>
@@ -191,11 +214,6 @@ const MainChat = (props) => {
                         <PopupDescription>
                             Insert your Username!
                         </PopupDescription>
-                        {/* <StyledThemeIcon
-                            onClick={() => changeColorTheme()}>
-                            <img src={isDarkTheme ? themeIconDark : themeIconLight} alt="moon icon from feathericons.com" />
-                            <Tooltip>Activate {isDarkTheme ? "light theme":"dark theme"}.</Tooltip>
-                        </StyledThemeIcon> */}
                     </PopupHeaderWrapper>
                     <InputForm onSubmit={onUsernameSubmit}>
                         <StyledInput
@@ -222,20 +240,23 @@ const MainChat = (props) => {
                         <StyledThemeIcon
                             onClick={() => changeColorTheme()}>
                             <img src={isDarkTheme ? themeIconDark : themeIconLight} alt="moon/ sun icon from feathericons.com" />
-                            <Tooltip>Activate {isDarkTheme ? "light theme":"dark theme"}.</Tooltip>
+                            <TooltipTheme>Activate {isDarkTheme ? "light theme":"dark theme"}.</TooltipTheme>
                         </StyledThemeIcon>
                     </Header>
                 </HeaderWrapper>
                 <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
-                        {chat.map(({ name, message, timestamp }, index) => {
+                        {chat.map(({_id, name, message, timestamp }, index) => {
                             return (
                                 <SingleMessage
                                     key={index}
+                                    id={_id}
                                     currentUsername={state.name}
                                     name={name}
                                     message={message}
                                     timestamp={timestamp}
+                                    isDarkTheme={isDarkTheme}
+                                    clickFunction={onDeleteClick}
                                 />
                             );
                         })}
@@ -280,7 +301,7 @@ const mapStateToProps = (state) => ({
     message: state.message
 })
 
-export default connect(mapStateToProps, { getMessages })(MainChat);
+export default connect(mapStateToProps, { getMessages, addMessage, deleteMessage })(MainChat);
 
 const StyledArea = styled.div`
 position: fixed;
@@ -323,7 +344,7 @@ cursor: pointer;
 font-weight: 700;
 `
 
-const Tooltip = styled.div`
+const TooltipTheme = styled.div`
 position: absolute;
 display: inline-block;
 font-size: var(--p-small-size);
@@ -345,13 +366,11 @@ ${StyledThemeIcon}:hover & {
     opacity: 1;
     transform: scaleY(1);
 }
-
 `;
 
 const PopupDescription = styled.div`
 text-align:center;
 padding-top: 4px;
-// padding-right: 39px;
 color: var(--color-accent-light);
 font-weight: 700;
 `

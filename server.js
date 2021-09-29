@@ -1,7 +1,3 @@
-// Notes
-// https://www.youtube.com/watch?v=5yTazHkDR4o&t=447s
-// 12:55
-
 const express = require('express');
 const mongoose = require('mongoose');
 const messages = require('./routes/api/messages');
@@ -28,8 +24,14 @@ const io = require('socket.io')(server)
 
 io.on('connection', socket => {
     
-    socket.on('message', ({name, message, timestamp}) => {
-        io.emit('message', {name, message, timestamp});
+    socket.on('message', ({_id, name, message, timestamp}) => {
+        io.emit('message', {_id, name, message, timestamp});
+    })
+
+    // message delete?
+    socket.on('messageDeleted', (_id) => {
+        console.log("messageDeleted", _id);
+        io.emit('messageDeleted', _id);
     })
     
     socket.on('userConnected', (name) => {
