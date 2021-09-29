@@ -11,7 +11,7 @@ const MessageSchema = new Schema({
         type: String,
         required: true,
     },
-    date: {
+    timestamp: {
         type: String,
         default: new Date().toLocaleString()
     }

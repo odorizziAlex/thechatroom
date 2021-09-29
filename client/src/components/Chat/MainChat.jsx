@@ -16,7 +16,6 @@ import io from 'socket.io-client'
 import { connect } from 'react-redux'
 import { getMessages, addMessage, deleteMessage } from '../../actions/messageActions'
 import PropTypes from 'prop-types'
-import uuid from 'uuid'
 
 /**
  * TODO
@@ -40,8 +39,8 @@ const MainChat = (props) => {
 
     const [state, setState] = useState({ _id: "", name: "", message: "", timestamp: "" }); 
     const [headerName, setHeaderName] = useState(""); 
-    const [chat, setChat] = useState([]);
     const { messages } = props.message;
+    const [chat, setChat] = useState([]);
 
     const [isUserNamePopupVisible, setIsUsernamePopupVisible] = useState(true); 
     const [userHasScrolled, setUserHasScrolled] = useState(false);
@@ -56,6 +55,7 @@ const MainChat = (props) => {
         msgListRef.addEventListener("scroll", checkScrollDistance);
 
         props.getMessages()
+        console.log(messages);
         setChat(messages);
 
         return () => {
@@ -76,7 +76,6 @@ const MainChat = (props) => {
 
         socketRef.current.on('messageDeleted', (_id) => {
             setChat(chat.filter(message => message._id !== _id));
-            console.log(messages);
         })
 
         return () => {
@@ -165,17 +164,16 @@ const MainChat = (props) => {
     }
 
     const onMessageSubmit = (event) => {
-        const { _id, name, message, timestamp } = state;
+        const {name, message, timestamp } = state;
 
         event.preventDefault();
 
         if (state.message !== "") {
-            let newId = uuid();
             // add message via action to state
-            props.addMessage({ _id: newId, name, message, timestamp });
+            props.addMessage({name, message, timestamp });
 
             // send message via socket
-            socketRef.current.emit('message', { _id: newId, name, message, timestamp });
+            socketRef.current.emit('message', { name, message, timestamp });
             setState({ _id: "", name, message: "", timestamp: "" });
             scrollToNewestMessage();
         }
@@ -246,7 +244,7 @@ const MainChat = (props) => {
                 </HeaderWrapper>
                 <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
-                        {chat.map(({_id, name, message, timestamp }, index) => {
+                        {messages.map(({_id, name, message, timestamp }, index) => {
                             return (
                                 <SingleMessage
                                     key={index}
