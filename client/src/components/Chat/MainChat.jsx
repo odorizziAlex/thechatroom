@@ -55,13 +55,15 @@ const MainChat = (props) => {
         msgListRef.addEventListener("scroll", checkScrollDistance);
 
         props.getMessages()
-        console.log(messages);
-        setChat(messages);
-
+        
         return () => {
             msgListRef.removeEventListener("scroll", checkScrollDistance);
         }
     }, [])
+
+    useEffect(() => {
+        setChat(messages);
+    }, [messages])
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:5000")
@@ -244,7 +246,7 @@ const MainChat = (props) => {
                 </HeaderWrapper>
                 <MessagesOutterWrapper ref={messageListRef}>
                     <Messages>
-                        {messages.map(({_id, name, message, timestamp }, index) => {
+                        {chat.map(({_id, name, message, timestamp }, index) => {
                             return (
                                 <SingleMessage
                                     key={index}
