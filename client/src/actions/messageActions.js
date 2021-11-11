@@ -13,8 +13,7 @@ export const getMessages = () => dispatch => {
         )
 }
 
-export const addMessage = (message) => dispatch => {
-    console.log("add action", message);
+export const addMessage = (socket, message) => dispatch => {
     axios
         .post('/api/messages', message)
         .then(res => 
@@ -23,18 +22,21 @@ export const addMessage = (message) => dispatch => {
                 payload: res.data
             })
         )
+    socket.current.emit('message', message);
 }
 
-export const deleteMessage = (_id) => dispatch => {
-    console.log("delete action", _id);
-    axios.delete(`/api/messages/${_id}`)
+export const deleteMessage = (socket, id) => dispatch => {
+    axios.delete(`/api/messages/${id}`)
         .then(res => dispatch({
             type: DELETE_MESSAGE,
-            payload: _id
+            payload: id
         }))
+
+    socket.current.emit('messageDeleted', id);
+
     return {
         type: DELETE_MESSAGE,
-        payload: _id
+        payload: id
     }
 }
 

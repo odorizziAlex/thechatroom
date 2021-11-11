@@ -1,7 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import deleteIconLightTheme from '../../assets/x-Light.svg';
-import deleteIconDarkTheme from '../../assets/x-Dark.svg';
 import deleteIconOwnLightTheme from '../../assets/x-Light-Own.svg';
 import deleteIconOwnDarkTheme from '../../assets/x-Dark-Own.svg';
 
@@ -25,7 +23,7 @@ const SingleMessage = ({id, currentUsername, name, message, timestamp, isDarkThe
         let today = new Date();
         let dateList = date.split('/');
         let yesterday = new Date((new Date()).valueOf() - 1000*60*60*24).toLocaleString().split(',')[0];
-        if(parseInt(dateList[0]) === today.getDate() && parseInt(dateList[1]) === (today.getMonth()+1) && parseInt(dateList[2]) === today.getFullYear())
+        if(parseInt(dateList[0],10) === today.getDate() && parseInt(dateList[1],10) === (today.getMonth()+1) && parseInt(dateList[2],10) === today.getFullYear())
             return "today";
         else if(date === yesterday)
             return "yesterday";
@@ -45,7 +43,7 @@ const SingleMessage = ({id, currentUsername, name, message, timestamp, isDarkThe
                                     } 
                                     alt="x Icon from feathericons.com" 
                                     isOwnMessage={currentUsername === name} 
-                                    onClick={() => {currentUsername === name ? clickFunction(id):undefined}}    
+                                    onClick={() => {currentUsername === name && clickFunction(id)}}    
                                 /> 
                             }
                             {/* <TooltipDelete>Delete message?</TooltipDelete> */}

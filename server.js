@@ -24,22 +24,23 @@ const io = require('socket.io')(server)
 
 io.on('connection', socket => {
     
-    socket.on('message', ({_id, name, message, timestamp}) => {
-        io.emit('message', {_id, name, message, timestamp});
+    socket.on('message', ({id, name, message, timestamp}) => {
+        io.emit('message', {id, name, message, timestamp});
     })
 
     // message delete?
-    socket.on('messageDeleted', (_id) => {
-        console.log("messageDeleted", _id);
-        io.emit('messageDeleted', _id);
+    socket.on('messageDeleted', (id) => {
+        io.emit('messageDeleted', id);
     })
     
     socket.on('userConnected', (name) => {
         io.emit('userConnected', name);
+        // console.log("socket: user connected", name);
     })
     
     socket.on('disconnect', () => {
         io.emit('userDisconnected');
+        // console.log("socket: user disconnected");
     })
 })
 
