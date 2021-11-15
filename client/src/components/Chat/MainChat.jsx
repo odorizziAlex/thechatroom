@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import toast, { Toaster } from 'react-hot-toast'
 import infoIconLight from '../../assets/alert-circle-petrol.svg'
 import infoIconDark from '../../assets/alert-circle-green.svg'
-import SingleMessage from './SingleMessage'
+import ChatHistory from './ChatHistory'
 import AppHeader from '../AppHeader'
 import LoginPopup from '../LoginPopup'
 import ChatInput from '../ChatInput'
@@ -49,7 +49,6 @@ const MainChat = (props) => {
     const [userHasScrolled, setUserHasScrolled] = useState(false);
     const [isDarkTheme, setIsDarkTheme] = useState(false);
     const [isNewMessageReceived, setIsNewMessageReceived] = useState(false);
-
 
     const socketRef = useRef();
     const messageListRef = useRef();
@@ -210,24 +209,13 @@ const MainChat = (props) => {
                     isDarkTheme={isDarkTheme}
                     setIsDarkTheme={setIsDarkTheme}
                 />
-                <MessagesOutterWrapper ref={messageListRef}>
-                    <Messages>
-                        {chat.map(({id, name, message, timestamp }) => {   
-                            return (
-                                <SingleMessage
-                                    key={id}
-                                    id={id}
-                                    currentUsername={state.name}
-                                    name={name}
-                                    message={message}
-                                    timestamp={timestamp}
-                                    isDarkTheme={isDarkTheme}
-                                    clickFunction={onDeleteClick}
-                                />
-                            );
-                        })}
-                    </Messages>
-                </MessagesOutterWrapper>
+                <ChatHistory 
+                    state={state}
+                    isDarkTheme={isDarkTheme}
+                    onDeleteClick={onDeleteClick}
+                    messageListRef={messageListRef}
+                    chat={chat}
+                />
                 <ChatInput 
                     state={state}
                     isNewMessageReceived={isNewMessageReceived}
@@ -273,13 +261,3 @@ border-radius: 10px;
 width: 99%;
 height: 98%;
 `;
-
-const MessagesOutterWrapper = styled.div`
-overflow-y: auto;
-padding: 10px 10px 0px 10px;
-height: 100%;
-width: 100%;
-`
-
-const Messages = styled.div`
-`
